@@ -1,0 +1,16 @@
+node_modules/
+.next/
+.env*
+!.env.example
+.env
+.env.local
+.env*.local
+assets-src/
+.runtime/
+.runtime/models/
+.runtime/logs/
+*.tsbuildinfo
+delivery/
+work/
+
+.tmp-tests/

@@ -1,0 +1,11 @@
+import { spawnSync } from 'node:child_process';
+import { mkdirSync, readdirSync, writeFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+const out = resolve('.runtime/tests');
+mkdirSync(out, { recursive: true });
+writeFileSync(resolve(out, 'package.json'), '{"type":"commonjs"}');
+const files = readdirSync('tests').filter(f => f.endsWith('.test.ts')).map(f => `tests/${f}`);
+const compile = spawnSync(process.execPath, ['node_modules/typescript/bin/tsc', '--target', 'ES2022', '--module', 'commonjs', '--moduleResolution', 'node', '--esModuleInterop', '--strict', '--skipLibCheck', '--outDir', out, ...files], { stdio: 'inherit' });
+if (compile.status !== 0) process.exit(compile.status ?? 1);
+const run = spawnSync(process.execPath, ['--test', ...files.map(f => resolve(out, f.replace(/\.ts$/, '.js')))], { stdio: 'inherit' });
+process.exit(run.status ?? 1);

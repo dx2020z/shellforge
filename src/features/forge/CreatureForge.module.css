@@ -1,0 +1,18 @@
+.creatureInputs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:18px 0}
+.creatureInputs label{min-width:0}
+.creatureInputs strong,.creatureInputs small{display:block;margin-bottom:6px}
+.creatureInputs small{color:#9db4a5;font-size:11px}
+.creatureInputs textarea{box-sizing:border-box;width:100%;min-height:110px}
+.creatureCards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.creatureCards>div{min-width:0;margin-top:10px}
+.creatureTask{margin-top:12px;border-top:1px solid #455c43;padding-top:10px}
+.creatureTask progress{width:100%;accent-color:#aadab2}
+.creatureTask button{margin-top:8px}
+@media(max-width:1000px){.creatureInputs,.creatureCards{grid-template-columns:1fr}.creatureInputs textarea{min-height:72px}}
+
+.blueprintPicker{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:16px 0}.blueprintPicker label{display:grid;gap:7px;min-width:0;padding:10px;border:1px solid #455f51;background:#0c201c}.blueprintPicker label>span{font-size:12px;color:#e5d4a8}.blueprintPicker select{width:100%;min-height:40px;padding:6px 9px;border:1px solid #60776b;background:#122b26;color:#eee6ce}.blueprintPicker small{font-size:10px;line-height:1.5;color:#96ad9e}.blueprintPicker select:disabled{opacity:.65}.singleInput{display:grid;gap:8px;margin:18px 0}.singleInput textarea{min-height:100px;width:100%;box-sizing:border-box}.creatureHeader{padding:12px;border:1px solid #587363;margin:12px 0}.creatureHeader strong{font-size:22px}.creatureHeader p{margin:4px 0}.creatureCards article ul{padding-left:18px;font-size:12px;line-height:1.7}.creatureTask p{color:#d7c899}
+
+.demoPresets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 0}.demoPresets button{display:grid;gap:5px;padding:12px;text-align:left;border:1px solid #587363;background:#102523;color:#e9d8b5}.demoPresets button[aria-pressed=true]{border-color:#eacb8d}.demoPresets small{color:#9db4a5}@media(max-width:700px){.demoPresets,.blueprintPicker{grid-template-columns:1fr}}
+
+.creatureHeader label{display:grid;gap:6px;max-width:420px;color:#adc5b3;font-size:12px}.creatureHeader input{min-height:44px;padding:8px 10px;background:#0a1b18;border:1px solid #557366;color:#f4e8cb;font-size:20px}
+.projectBar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:12px 0;color:#e4d5ac;font-size:12px}.projectList{display:flex;gap:8px;overflow-x:auto;padding:0 0 10px}.projectList button{min-width:170px;max-width:220px;display:grid;gap:6px;text-align:left;background:#10271f}.projectList button[aria-pressed=true]{border-color:#e0bd77;background:#2a4030}.projectList strong{font-size:12px;color:#e9dfbc}.projectList small{font-size:10px;line-height:1.5;color:#a6bba8;white-space:normal}.creatureTask progress{display:block;width:100%;height:6px;margin:6px 0 9px;accent-color:#acd9ae}

@@ -1,0 +1,11 @@
+import { cp, mkdir, readdir, writeFile } from 'node:fs/promises';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+const destination=path.join(root,'delivery','online-team-v02');
+await mkdir(destination,{recursive:true});
+const entries=['src','public','tests','scripts','docs','README.md','package.json','package-lock.json','tsconfig.json','next.config.ts','next-env.d.ts','.gitignore','.env.example'];
+for(const entry of entries)await cp(path.join(root,entry),path.join(destination,entry),{recursive:true});
+await writeFile(path.join(destination,'HANDOFF.md'),'# ShellForge v0.2\n\n这是完整可运行工程。先读 docs/ONLINE_TEAM_TASKS.md 和 docs/ART_AND_API.md。\n\nNode >=22.16；npm install；npm run dev；打开 http://localhost:3018。\n\n仅回传本人负责文件、验证结果和录屏；不要交回密钥或依赖目录。\n');
+console.log('Full runnable team snapshot: '+destination);
+console.log('Top-level entries: '+(await readdir(destination)).length);
