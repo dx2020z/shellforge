@@ -1,7 +1,7 @@
 import { mkdir, open, readFile, rename, unlink, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { randomUUID } from 'node:crypto';
-import type { Env } from '../config';
+import { redisConfig, type Env } from '../config';
 
 /**
  * 小型键值存储：生成任务、提示词缓存索引、锁、限流计数都放这里。
@@ -156,9 +156,10 @@ let shared: KV | null = null;
 
 export async function getKV(env: Env = process.env): Promise<KV> {
   if (shared) return shared;
-  if (env.UPSTASH_REDIS_REST_URL?.trim() && env.UPSTASH_REDIS_REST_TOKEN?.trim()) {
+  const redis = redisConfig(env);
+  if (redis) {
     const { Redis } = await import('@upstash/redis');
-    shared = new RedisKV(new Redis({ url: env.UPSTASH_REDIS_REST_URL.trim(), token: env.UPSTASH_REDIS_REST_TOKEN.trim() }));
+    shared = new RedisKV(new Redis(redis));
   } else {
     // Vercel 上没有持久磁盘时退到 /tmp：同一实例内可用，重启即丢。
     const root = process.env.VERCEL ? '/tmp/shellforge-kv' : join(process.cwd(), '.runtime', 'kv');

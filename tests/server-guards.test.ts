@@ -85,5 +85,9 @@ describe('线上没有持久存储时不启用 Tripo', () => {
     expect(getIntegrationStatus(keys).tripoUsable).toBe(true);
     expect(getIntegrationStatus({ ...keys, VERCEL: '1' }).tripoUsable).toBe(false);
     expect(getIntegrationStatus({ ...keys, VERCEL: '1', BLOB_READ_WRITE_TOKEN: 'b', UPSTASH_REDIS_REST_URL: 'https://u', UPSTASH_REDIS_REST_TOKEN: 't' }).tripoUsable).toBe(true);
+    // Vercel 市场连接 Upstash 自动生成的变量名也要认。
+    const market = getIntegrationStatus({ ...keys, VERCEL: '1', BLOB_READ_WRITE_TOKEN: 'b', KV_REST_API_URL: 'https://u', KV_REST_API_TOKEN: 't' });
+    expect(market.durableStorage).toBe(true);
+    expect(market.tripoUsable).toBe(true);
   });
 });
