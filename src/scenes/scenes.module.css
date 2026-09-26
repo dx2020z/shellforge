@@ -86,13 +86,13 @@
 }
 @media (min-width: 900px) {
   .workshop {
-    top: 0;
+    /* 从顶栏下方开始：内容比屏幕高时在这块区域里滚动，永远不会滑到左上角的标志下面。 */
+    top: 72px;
     right: auto;
     width: min(560px, 46vw);
-    /* 内容比屏幕高时从顶上排起并允许滚动，不再顶到左上角的标志下面。 */
     align-content: safe center;
     overflow-y: auto;
-    padding: max(var(--s12), 76px) var(--s12) var(--s12);
+    padding: var(--s6) var(--s12) var(--s12);
     background: linear-gradient(90deg, rgb(7 19 15 / 0.9), rgb(7 19 15 / 0.55) 70%, transparent);
   }
 }
