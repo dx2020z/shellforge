@@ -1,0 +1,65 @@
+.sea {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 70% at 50% -10%, rgb(47 120 104 / 0.55), transparent 60%),
+    radial-gradient(80% 60% at 85% 110%, rgb(21 64 58 / 0.7), transparent 70%),
+    linear-gradient(180deg, #0f2e28 0%, #0a1f1a 38%, var(--abyss) 100%);
+}
+/* 海面透下来的光束，缓慢摇曳 */
+.rays {
+  position: absolute;
+  inset: -20% -30% 30%;
+  background:
+    linear-gradient(100deg, transparent 38%, rgb(159 240 216 / 0.07) 42%, transparent 47%),
+    linear-gradient(80deg, transparent 52%, rgb(241 232 210 / 0.05) 55%, transparent 60%),
+    linear-gradient(95deg, transparent 20%, rgb(159 240 216 / 0.05) 24%, transparent 28%),
+    linear-gradient(85deg, transparent 66%, rgb(159 240 216 / 0.06) 70%, transparent 76%);
+  -webkit-mask: linear-gradient(180deg, #000 10%, transparent 85%);
+  mask: linear-gradient(180deg, #000 10%, transparent 85%);
+  transform-origin: 50% 0;
+  animation: sway 14s var(--ease-in-out) infinite alternate;
+}
+@keyframes sway {
+  from { transform: rotate(-2.5deg) translateX(-2%); }
+  to { transform: rotate(2.5deg) translateX(2%); }
+}
+/* 水中漂浮的微粒 */
+.mote {
+  position: absolute;
+  bottom: -10px;
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  background: rgb(214 250 238 / var(--alpha));
+  box-shadow: 0 0 6px rgb(159 240 216 / 0.4);
+  animation: rise var(--dur) linear var(--delay) infinite;
+}
+@keyframes rise {
+  0% { transform: translate3d(0, 0, 0); opacity: 0; }
+  10% { opacity: 1; }
+  50% { transform: translate3d(var(--drift), -55vh, 0); }
+  90% { opacity: 1; }
+  100% { transform: translate3d(0, -110vh, 0); opacity: 0; }
+}
+/* 暗角 */
+.vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 90% at 50% 40%, transparent 55%, rgb(3 10 8 / 0.75) 100%);
+}
+/* 低生命时，画面边缘轻微泛红 */
+.danger .vignette {
+  background: radial-gradient(120% 90% at 50% 40%, transparent 50%, rgb(120 20 20 / 0.45) 100%);
+  animation: dangerPulse 1.1s var(--ease-in-out) infinite;
+}
+@keyframes dangerPulse {
+  50% { opacity: 0.6; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rays, .mote, .danger .vignette { animation: none; }
+  .mote { display: none; }
+}

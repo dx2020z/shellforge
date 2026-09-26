@@ -1,0 +1,129 @@
+.button {
+  --bg: transparent;
+  --fg: var(--cream);
+  --bd: var(--gold-line);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s2);
+  min-height: 44px;
+  padding: 0 var(--s5);
+  border: 1px solid var(--bd);
+  border-radius: var(--radius-pill);
+  background: var(--bg);
+  color: var(--fg);
+  font-size: var(--fs-md);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    transform var(--t-ui) var(--ease-spring),
+    background-color var(--t-fast) var(--ease-out),
+    border-color var(--t-fast) var(--ease-out),
+    box-shadow var(--t-ui) var(--ease-out),
+    color var(--t-fast) var(--ease-out);
+}
+.button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+.button:active:not(:disabled) {
+  transform: translateY(1px) scale(0.97);
+  transition-duration: 80ms;
+}
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
+
+/* 主按钮：金色填充，贝壳内的光 */
+.primary {
+  --bg: linear-gradient(180deg, #e3c27c, #c99d4f);
+  --fg: #1a1408;
+  --bd: rgb(255 230 170 / 0.55);
+  font-weight: 700;
+  box-shadow: 0 0 0 0 rgb(212 174 99 / 0), 0 8px 20px -10px rgb(212 174 99 / 0.7), inset 0 1px 0 rgb(255 255 255 / 0.4);
+}
+.primary:hover:not(:disabled) {
+  box-shadow: 0 0 0 4px rgb(212 174 99 / 0.14), 0 12px 26px -10px rgb(212 174 99 / 0.8), inset 0 1px 0 rgb(255 255 255 / 0.4);
+}
+
+/* 次按钮：细金线描边 */
+.secondary:hover:not(:disabled) {
+  --bg: var(--gold-soft);
+  --bd: var(--gold);
+}
+
+/* 幽灵按钮：只有文字 */
+.ghost {
+  --bd: transparent;
+  --fg: var(--cream-dim);
+  padding: 0 var(--s3);
+}
+.ghost:hover:not(:disabled) {
+  --fg: var(--cream);
+  --bg: rgb(241 232 210 / 0.05);
+}
+
+/* 危险：撤退、放弃 */
+.danger {
+  --bd: rgb(238 154 69 / 0.5);
+  --fg: var(--lava);
+}
+.danger:hover:not(:disabled) {
+  --bg: var(--lava-soft);
+  --bd: var(--lava);
+}
+
+.sm {
+  min-height: 36px;
+  padding: 0 var(--s4);
+  font-size: var(--fs-sm);
+}
+.lg {
+  min-height: 54px;
+  padding: 0 var(--s8);
+  font-size: var(--fs-lg);
+}
+.icon {
+  width: 44px;
+  padding: 0;
+}
+.icon.sm {
+  width: 36px;
+}
+
+/* 忙碌时：一圈潮水在边框上流动 */
+.busy::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(from var(--angle, 0deg), transparent 0 70%, var(--mint) 85%, transparent);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: spin 1.4s linear infinite;
+}
+@property --angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+@keyframes spin {
+  to {
+    --angle: 360deg;
+  }
+}
+
+/* 触屏：点击区域不小于 40px */
+@media (pointer: coarse) {
+  .sm {
+    min-height: 40px;
+  }
+  .icon.sm {
+    width: 40px;
+  }
+}

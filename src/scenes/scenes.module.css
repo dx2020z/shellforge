@@ -1,0 +1,495 @@
+/* ==========================================================================
+   场景共享样式：所有 UI 都浮在全屏 3D 场景之上。
+   手机竖屏：上方薄 HUD，下方操作托盘在拇指区。桌面：左侧文字，右侧造物。
+   ========================================================================== */
+
+.layer {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+  padding: max(14px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+}
+.layer > * {
+  pointer-events: auto;
+}
+
+/* 顶栏 */
+.topbar {
+  position: absolute;
+  top: max(14px, env(safe-area-inset-top));
+  left: max(16px, env(safe-area-inset-left));
+  right: max(16px, env(safe-area-inset-right));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+  pointer-events: none;
+}
+.topbar > * {
+  pointer-events: auto;
+}
+.brand {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  line-height: 1.1;
+}
+.brand b {
+  font-family: var(--font-serif);
+  font-size: 12px;
+  letter-spacing: 0.32em;
+  color: var(--cream);
+}
+.brand span {
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  color: var(--gold);
+}
+.topActions {
+  margin-left: auto;
+  display: flex;
+  gap: var(--s2);
+}
+.roundButton {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid rgb(241 232 210 / 0.14);
+  background: rgb(7 19 15 / 0.45);
+  color: var(--cream-dim);
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: color var(--t-fast), border-color var(--t-fast), transform var(--t-ui) var(--ease-spring);
+}
+.roundButton:hover {
+  color: var(--cream);
+  border-color: var(--gold-line);
+}
+.roundButton:active {
+  transform: scale(0.94);
+}
+
+/* ---------------- 工坊 ---------------- */
+.workshop {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: grid;
+  gap: var(--s4);
+  padding: var(--s6) max(16px, env(safe-area-inset-left)) max(20px, env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, transparent, rgb(7 19 15 / 0.82) 28%, rgb(7 19 15 / 0.95));
+}
+@media (min-width: 900px) {
+  .workshop {
+    top: 0;
+    right: auto;
+    width: min(560px, 46vw);
+    /* 内容比屏幕高时从顶上排起并允许滚动，不再顶到左上角的标志下面。 */
+    align-content: safe center;
+    overflow-y: auto;
+    padding: max(var(--s12), 76px) var(--s12) var(--s12);
+    background: linear-gradient(90deg, rgb(7 19 15 / 0.9), rgb(7 19 15 / 0.55) 70%, transparent);
+  }
+}
+.eyebrow {
+  font-size: var(--fs-xs);
+  letter-spacing: 0.3em;
+  color: var(--gold);
+}
+.headline {
+  font-size: clamp(30px, 8.6vw, 60px);
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  line-height: 1.08;
+  text-shadow: 0 4px 30px rgb(0 0 0 / 0.5);
+}
+.lead {
+  color: var(--cream-dim);
+  font-size: var(--fs-md);
+  max-width: 30em;
+}
+.riddle {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 14px;
+  border-left: 2px solid var(--gold);
+  background: linear-gradient(90deg, rgb(212 174 99 / 0.12), transparent);
+}
+.riddle small {
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+}
+.riddle p {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: var(--fs-md);
+}
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  align-items: center;
+}
+.specimenTag {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  transform: translate(-50%, -100%);
+  pointer-events: none;
+  text-align: center;
+  white-space: nowrap;
+}
+.specimenTag b {
+  font-family: var(--font-serif);
+  font-size: var(--fs-xl);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-shadow: 0 2px 18px rgb(0 0 0 / 0.7);
+}
+.specimenTag span {
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  color: var(--gold);
+}
+.specimenTag small {
+  font-size: var(--fs-sm);
+  color: var(--cream-dim);
+}
+.heir {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  border: 1px dashed rgb(212 174 99 / 0.4);
+  background: rgb(212 174 99 / 0.08);
+  font-size: var(--fs-sm);
+  color: var(--cream-dim);
+}
+.heir b {
+  color: var(--cream);
+  font-family: var(--font-serif);
+}
+
+/* ---------------- 一命提示卡 ---------------- */
+.omen {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: var(--s8);
+  background: radial-gradient(80% 60% at 50% 45%, rgb(7 19 15 / 0.55), rgb(3 9 7 / 0.96));
+  text-align: center;
+  cursor: pointer;
+}
+.omenInner {
+  display: grid;
+  gap: var(--s5);
+  justify-items: center;
+  max-width: 560px;
+}
+.omenLine {
+  font-size: clamp(26px, min(7vw, 9vh), 48px);
+  font-weight: 900;
+  line-height: 1.35;
+  letter-spacing: 0.04em;
+}
+.omenLine em {
+  font-style: normal;
+  color: var(--mint);
+}
+.omenSub {
+  color: var(--cream-dim);
+  font-size: var(--fs-md);
+  line-height: 1.8;
+}
+.omenHint {
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  color: var(--muted);
+  animation: breathe 2.4s var(--ease-in-out) infinite;
+}
+@keyframes breathe {
+  50% { opacity: 0.35; }
+}
+
+/* 手机横屏（矮屏）：改成左右布局，造物留在右侧 */
+@media (orientation: landscape) and (max-height: 520px) {
+  .brand {
+    display: none;
+  }
+  .workshop {
+    top: 0;
+    right: auto;
+    width: min(56vw, 520px);
+    align-content: center;
+    gap: var(--s2);
+    padding: 16px max(20px, env(safe-area-inset-left));
+    background: linear-gradient(90deg, rgb(7 19 15 / 0.92), rgb(7 19 15 / 0.6) 75%, transparent);
+  }
+  .headline {
+    font-size: 30px;
+  }
+  .lead {
+    display: none;
+  }
+  .riddle {
+    padding: 6px 12px;
+  }
+}
+
+/* 边写边看的能力徽章 */
+.live {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  min-height: 30px;
+  margin-top: calc(var(--s2) * -1);
+}
+.liveItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 4px 3px 10px;
+  border-radius: 999px;
+  background: rgb(7 19 15 / 0.7);
+  border: 1px solid var(--hairline);
+}
+.liveItem small {
+  font-size: 11px;
+  color: var(--cream-dim);
+  white-space: nowrap;
+}
+.liveHint {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* 工坊里造物所在的区域：可拖动旋转、轻点让它跳 */
+.spinPad {
+  position: absolute;
+  left: 15%;
+  right: 15%;
+  top: 14%;
+  height: 40%;
+  touch-action: pan-y;
+  cursor: grab;
+}
+.spinPad:active {
+  cursor: grabbing;
+}
+@media (min-width: 900px) {
+  .spinPad {
+    left: 50%;
+    right: 8%;
+    top: 12%;
+    height: 72%;
+  }
+}
+@media (orientation: landscape) and (max-height: 540px) {
+  .spinPad {
+    left: 58%;
+    right: 4%;
+    top: 10%;
+    height: 80%;
+  }
+}
+
+@media (min-width: 601px) {
+  .topbar[data-scene='battle'] .brand,
+  .topbar[data-scene='result'] .brand {
+    visibility: hidden;
+  }
+}
+
+.riddleLines {
+  display: grid;
+  gap: 2px;
+  margin: 2px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.riddleLines li {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  line-height: 1.55;
+}
+.riddleLines li::before {
+  content: '◇ ';
+  color: var(--gold);
+}
+.riddleLines li[data-on] {
+  color: var(--gold);
+}
+.riddleLines li[data-on]::before {
+  content: '◆ ';
+}
+
+/* 名册 */
+.roster {
+  display: grid;
+  gap: 6px;
+}
+.roster > small {
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+}
+.rosterRow {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+  max-width: 420px;
+}
+.rosterSlot {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  min-height: 72px;
+  padding: 4px 2px 6px;
+  border-radius: 12px;
+  border: 1px solid var(--hairline);
+  background: rgb(7 19 15 / 0.7);
+  color: var(--cream-dim);
+  cursor: pointer;
+  transition: border-color var(--t-ui), transform var(--t-ui) var(--ease-spring);
+}
+.rosterSlot img {
+  width: 40px;
+  height: 46px;
+  object-fit: contain;
+}
+.rosterSlot span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 11px;
+}
+.rosterSlot b {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 46px;
+  font-size: 24px;
+  font-weight: 400;
+  color: var(--gold);
+}
+.rosterSlot[data-empty] {
+  border-style: dashed;
+  border-color: var(--gold-line);
+}
+.rosterSlot:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.rosterSlot[aria-pressed='true'] {
+  border-color: var(--gold);
+  background: rgb(212 174 99 / 0.12);
+  color: var(--cream);
+}
+.rosterSlot:not(:disabled):hover {
+  transform: translateY(-2px);
+}
+.rosterWait {
+  width: 22px;
+  height: 22px;
+  margin: 12px;
+  border-radius: 50%;
+  background: rgb(159 240 216 / 0.15);
+}
+.full {
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px solid rgb(238 154 69 / 0.4);
+  color: var(--lava);
+  font-size: 13px;
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.stats b {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  color: var(--cream);
+}
+.inheritLine,
+.growing,
+.aiLine {
+  flex-basis: 100%;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.inheritLine {
+  border: 1px solid rgb(201 184 255 / 0.4);
+  background: rgb(201 184 255 / 0.08);
+  color: #d9ceff;
+}
+.growing {
+  border: 1px dashed rgb(159 240 216 / 0.4);
+  color: var(--mint);
+}
+.aiLine {
+  border: 1px solid var(--hairline);
+  color: var(--muted);
+}
+.aiLine[data-on] {
+  border-color: rgb(159 240 216 / 0.3);
+  color: var(--mint);
+}
+
+/* Tripo 生成进度 */
+.hatchBadge {
+  position: fixed;
+  top: max(118px, env(safe-area-inset-top) + 106px);
+  left: 50%;
+  translate: -50% 0;
+  z-index: 46;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 14px 6px 8px;
+  border-radius: 999px;
+  border: 1px solid rgb(159 240 216 / 0.4);
+  background: rgb(7 19 15 / 0.9);
+  box-shadow: 0 0 20px -6px rgb(159 240 216 / 0.6);
+  pointer-events: none;
+}
+.hatchBadge b {
+  display: block;
+  font-size: 12px;
+  color: var(--mint);
+}
+.hatchBadge small {
+  font-size: 11px;
+  color: var(--cream-dim);
+  font-variant-numeric: tabular-nums;
+}
+.hatchEgg {
+  width: 18px;
+  height: 22px;
+  border-radius: 50% 50% 46% 46% / 60% 60% 40% 40%;
+  background: radial-gradient(circle at 35% 30%, #f1e8d2, #9ff0d8 60%, #3a8f7a);
+  animation: wobble 1.2s ease-in-out infinite;
+}
+@keyframes wobble {
+  25% { rotate: -10deg; }
+  75% { rotate: 10deg; }
+}

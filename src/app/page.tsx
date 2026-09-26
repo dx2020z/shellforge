@@ -1,2 +1,5 @@
-import GameClient from '@/components/GameClient';
-export default function Page(){return <GameClient/>}
+import Game from '@/game/Game';
+
+export default function Home() {
+  return <Game />;
+}

@@ -1,0 +1,35 @@
+.home {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  min-height: 100dvh;
+  padding: var(--s8) var(--gutter);
+  text-align: center;
+}
+.inner {
+  display: grid;
+  gap: var(--s5);
+  justify-items: center;
+  max-width: 560px;
+}
+.brand {
+  font-size: var(--fs-xs);
+  letter-spacing: 0.4em;
+  color: var(--gold);
+}
+.title {
+  font-size: var(--fs-3xl);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+.lead {
+  color: var(--cream-dim);
+  font-size: var(--fs-md);
+}
+.links {
+  display: flex;
+  gap: var(--s3);
+  flex-wrap: wrap;
+  justify-content: center;
+}

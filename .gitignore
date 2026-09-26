@@ -1,16 +1,26 @@
+# 依赖与构建
 node_modules/
 .next/
+out/
+*.tsbuildinfo
+next-env.d.ts
+
+# 密钥：只提交 .env.example
 .env*
 !.env.example
-.env
-.env.local
-.env*.local
-assets-src/
-.runtime/
-.runtime/models/
-.runtime/logs/
-*.tsbuildinfo
-delivery/
-work/
 
-.tmp-tests/
+# 本地模型缓存、任务记录与日志
+.runtime/
+logs/
+*.log
+
+# 原始大模型（不入库）
+assets-src/
+
+# 截图（本地质检用，体积大）
+docs/screens/
+
+# 测试产物
+test-results/
+playwright-report/
+.vercel

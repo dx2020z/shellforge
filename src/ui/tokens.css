@@ -1,0 +1,266 @@
+/* ==========================================================================
+   ShellForge 设计令牌 —— 深海体系
+   所有组件只引用这里的变量；关键词颜色与 src/domain/keywords.ts 保持一致。
+   ========================================================================== */
+
+@font-face {
+  font-family: 'SF Serif';
+  src: url('/fonts/noto-serif-sc.woff2') format('woff2');
+  font-weight: 600 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'SF Sans';
+  src: url('/fonts/noto-sans-sc.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  color-scheme: dark;
+
+  /* 基础色 */
+  --abyss: #07130f;
+  --abyss-2: #0a1c17;
+  --deep: #0d2621;
+  --tide: #15403a;
+  --mint: #9ff0d8;
+  --gold: #d4ae63;
+  --cream: #f1e8d2;
+  --muted: #8faaa0;
+  --lava: #ee9a45;
+
+  /* 派生色 */
+  --mint-soft: rgb(159 240 216 / 0.14);
+  --mint-glow: rgb(159 240 216 / 0.42);
+  --gold-line: rgb(212 174 99 / 0.42);
+  --gold-soft: rgb(212 174 99 / 0.12);
+  --cream-dim: rgb(241 232 210 / 0.72);
+  --lava-soft: rgb(238 154 69 / 0.14);
+  --danger: #f07a6a;
+  --hairline: rgb(241 232 210 / 0.08);
+  --panel: rgb(13 38 33 / 0.72);
+  --panel-solid: #0f2a24;
+
+  /* 关键词：头＝暖色系，躯＝薄荷系，足＝淡紫系 */
+  --kw-灼烧: #f2784b;
+  --kw-穿刺: #f2b544;
+  --kw-连击: #f79c7c;
+  --kw-震慑: #ffd98a;
+  --kw-吞噬: #ef7f9c;
+  --kw-坚壳: #9ff0d8;
+  --kw-反射: #8fe3f2;
+  --kw-再生: #b6ee9f;
+  --kw-膨胀: #6fd8b6;
+  --kw-蓄能: #d3f6c8;
+  --kw-迅捷: #c9b8ff;
+  --kw-潜行: #9c92ea;
+  --kw-跃击: #e2b9ff;
+  --kw-吸附: #b3a9db;
+  --kw-回旋: #dcceff;
+  --kw-head: #f2a36b;
+  --kw-body: #9ff0d8;
+  --kw-legs: #c9b8ff;
+  --cost: var(--lava);
+
+  /* 字体 */
+  --font-serif: 'SF Serif', 'Noto Serif SC', 'Songti SC', 'STSong', 'SimSun', serif;
+  --font-sans: 'SF Sans', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+
+  /* 字号：手机优先，桌面放大一档 */
+  --fs-xs: 11px;
+  --fs-sm: 13px;
+  --fs-md: 15px;
+  --fs-lg: 18px;
+  --fs-xl: 24px;
+  --fs-2xl: 32px;
+  --fs-3xl: 44px;
+  --track-label: 0.24em;
+
+  /* 间距（4 的倍数） */
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 20px;
+  --s6: 24px;
+  --s8: 32px;
+  --s10: 40px;
+  --s12: 48px;
+  --s16: 64px;
+  --gutter: 16px;
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-pill: 999px;
+
+  --shadow-panel: 0 1px 0 rgb(241 232 210 / 0.04) inset, 0 18px 40px -18px rgb(0 0 0 / 0.7);
+  --shadow-lift: 0 10px 30px -10px rgb(0 0 0 / 0.65);
+
+  /* 动效：UI 150–300ms 弹簧；高光时刻 600–1200ms */
+  --ease-spring: linear(0, 0.009, 0.035 2.1%, 0.141 4.4%, 0.723 12.9%, 0.938 16.7%, 1.017 19.4%, 1.061 22.2%, 1.074 24.8%, 1.066 27.9%, 1.009 38.6%, 0.995 46.1%, 1.001 61.9%, 1);
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --t-fast: 150ms;
+  --t-ui: 240ms;
+  --t-scene: 800ms;
+  --t-ritual: 1200ms;
+}
+
+@media (min-width: 900px) {
+  :root {
+    --fs-md: 16px;
+    --fs-lg: 20px;
+    --fs-xl: 28px;
+    --fs-2xl: 40px;
+    --fs-3xl: 60px;
+    --gutter: 32px;
+  }
+}
+
+/* 旧浏览器不支持 linear() 时退回近似曲线 */
+@supports not (transition-timing-function: linear(0, 1)) {
+  :root {
+    --ease-spring: cubic-bezier(0.34, 1.4, 0.5, 1);
+  }
+}
+
+/* 系统「减少动态效果」：关闭位移与慢动作，保留淡入淡出 */
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion='full']) {
+    --t-scene: 200ms;
+    --t-ritual: 300ms;
+  }
+}
+:root[data-motion='reduced'] {
+  --t-scene: 200ms;
+  --t-ritual: 300ms;
+}
+
+/* ==========================================================================
+   基础样式
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--abyss);
+  color: var(--cream);
+  font-family: var(--font-sans);
+  font-size: var(--fs-md);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  text-rendering: optimizeLegibility;
+}
+body {
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+p {
+  margin: 0;
+}
+button {
+  font: inherit;
+  color: inherit;
+}
+input,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+::selection {
+  background: rgb(159 240 216 / 0.3);
+  color: var(--cream);
+}
+:focus-visible {
+  outline: 2px solid var(--mint);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* 数字一律等宽 */
+.num,
+[data-num] {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
+.label {
+  font-size: var(--fs-xs);
+  letter-spacing: var(--track-label);
+  color: var(--gold);
+  text-transform: uppercase;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* 场景切换：潮水漫过 */
+.sf-tide-wipe {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 100%;
+  z-index: 75;
+  height: 150vh;
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+  animation: sf-tide 900ms cubic-bezier(0.65, 0, 0.35, 1) forwards;
+}
+.sf-tide-wipe svg {
+  display: block;
+  width: 100%;
+  height: 7vh;
+  flex: none;
+  fill: #0b2621;
+}
+.sf-tide-body {
+  flex: 1;
+  background: linear-gradient(180deg, #0b2621, #103a33 50%, #0b2621);
+}
+.sf-tide-wipe i {
+  position: absolute;
+  top: 2vh;
+  border-radius: 50%;
+  border: 1.5px solid rgb(159 240 216 / 0.7);
+  background: radial-gradient(circle at 30% 30%, rgb(241 232 210 / 0.5), transparent 60%);
+  animation: sf-tide-bubble 900ms ease-out forwards;
+}
+@keyframes sf-tide {
+  to {
+    transform: translateY(-260vh);
+  }
+}
+@keyframes sf-tide-bubble {
+  to {
+    transform: translateY(-14vh);
+    opacity: 0;
+  }
+}

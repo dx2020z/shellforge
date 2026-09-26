@@ -1,77 +1,101 @@
-import test from 'node:test';
-import assert from 'node:assert/strict';
-import { generateCreatureDrafts, parseCreatureDrafts, validateCreatureInputs } from '../src/server/providers/creature';
-import {COSTS} from '../src/domain/keywords';
+import { describe, expect, test } from 'vitest';
+import { generateCreatureDraft, localCreatureDraft, parseCreatureDraft, validateOrigin } from '@/server/providers/creature';
 
-const inputs=validateCreatureInputs({
-  head:{partId:'h01',prompt:'火焰机械鸟头'},
-  body:{partId:'b02',prompt:'珊瑚装甲身体'},
-  legs:{partId:'l01',prompt:'一双疾行足'}
+type Reason = { keyword: string; quote: string; why: string };
+type PartRaw = { title: string; description: string; visualPrompt: string; keywords: string[]; cost: string | null; reasons: Reason[] };
+type Draft = { name: string; lore: string; parts: { head: PartRaw; body: PartRaw; legs: PartRaw } };
+
+const origin = '一只毛茸茸、很乖、从不还嘴的健身牛';
+const good = (): Draft => ({
+  name: '绒默牛来',
+  lore: '它从不还嘴，只用肌肉说话。',
+  parts: {
+    head: { title: '绒默首', description: '低着头的温顺牛首', visualPrompt: 'gentle bull head with fluffy fur', keywords: ['震慑'], cost: null, reasons: [{ keyword: '震慑', quote: '很乖、从不还嘴', why: '低头的样子反而能震住对手' }] },
+    body: { title: '牛来之躯', description: '健身练出的厚实胸膛', visualPrompt: 'muscular torso', keywords: ['坚壳'], cost: null, reasons: [{ keyword: '坚壳', quote: '健身', why: '紧绷的肌肉能硬抗冲击' }] },
+    legs: { title: '绒默足', description: '毛茸茸的短腿', visualPrompt: 'fluffy short legs', keywords: ['潜行'], cost: null, reasons: [{ keyword: '潜行', quote: '毛茸茸', why: '软软的短腿落地无声' }] },
+  },
 });
-const reply={name:'焰蟹',lore:'火中醒来',parts:{head:{title:'焰鸟头',description:'机械火焰鸟头',visualPrompt:'A brass fire bird head, head only',keywords:['灼烧'],cost:null,reasons:[{keyword:'灼烧',quote:'火焰',why:'滚烫'}]},body:{title:'珊瑚身',description:'珊瑚装甲身',visualPrompt:'A coral armored torso with arms only',keywords:['坚壳'],cost:null,reasons:[{keyword:'坚壳',quote:'珊瑚装甲身体',why:'坚硬'}]},legs:{title:'疾行足',description:'一对齿轮足',visualPrompt:'A pair of gear legs only',keywords:['迅捷'],cost:null,reasons:[{keyword:'迅捷',quote:'疾行足',why:'快速'}]}}};
+const json = (value: unknown) => new Response(JSON.stringify({ choices: [{ message: { content: JSON.stringify(value) } }] }));
+const env = { DEEPSEEK_API_KEY: 'secret-key', DEEPSEEK_MODEL: 'test-model' };
 
-test('一次造物输入严格绑定三个槽位和长度',()=>{
-  assert.deepEqual(Object.keys(inputs),['head','body','legs']);
-  assert.throws(()=>validateCreatureInputs({...inputs,head:{partId:'b02',prompt:'错位'}}));
-  assert.throws(()=>validateCreatureInputs({...inputs,legs:{partId:'l01',prompt:' '}}));
-  assert.throws(()=>validateCreatureInputs({...inputs,body:{partId:'b02',prompt:'x'.repeat(121)}}));
-});
+describe('一句话造物', () => {
+  test('空输入与乱码返回幽默回应而不是报错文案', () => {
+    expect(() => validateOrigin('   ')).toThrow(/贝壳|海水|潮汐/);
+    expect(() => validateOrigin('qwrtpsdfgh')).toThrow(/章鱼|字符|咒语/);
+    expect(validateOrigin('  会喷火的  螃蟹 ')).toBe('会喷火的 螃蟹');
+  });
 
-test('DeepSeek 一次返回三件，不能注入部件编号、属性或代码',async()=>{
-  let calls=0;
-  const http:typeof fetch=async (_url,init)=>{
-    calls++;
-    const sent=JSON.parse(String(init?.body));
-    assert.equal(sent.model,'test-model');
-    assert.equal(sent.thinking.type,'disabled');
-    assert.equal(sent.messages[1].content.includes('珊瑚装甲身体'),true);
-    return new Response(JSON.stringify({choices:[{message:{content:JSON.stringify({...reply,parts:{...reply.parts,head:{...reply.parts.head,partId:'h03',stats:{atk:9999},abilityId:'pierce'}}})}}]}),{status:200});
-  };
-  const result=await generateCreatureDrafts(inputs,{DEEPSEEK_API_KEY:'test-secret',DEEPSEEK_MODEL:'test-model'},http);
-  assert.equal(calls,1);
-  assert.equal(result.drafts.head.partId,'h01');
-  assert.equal(result.drafts.head.stats.atk,11);
-  assert.equal(result.drafts.head.abilityId,'flame');
-  assert.deepEqual(result.drafts.head.keywords,['灼烧']);
-  assert.equal(result.drafts.name,'焰蟹');
-  assert.equal(result.drafts.legs.source,'deepseek');
-  assert.throws(()=>parseCreatureDrafts({...reply,parts:{...reply.parts,legs:{title:'x'}}},inputs));
-});
+  test('合格回复原样保留名字、理由和引用', () => {
+    const draft = parseCreatureDraft(good(), origin);
+    expect(draft.source).toBe('deepseek');
+    expect(draft.parts.head.trait.reasons[0]).toEqual({ keyword: '震慑', quote: '很乖、从不还嘴', why: '低头的样子反而能震住对手' });
+  });
 
-test('将模型同义关键词映射到合法技能，但保留它生成的名称、描述、理由和原文',()=>{
-  const inputs=validateCreatureInputs({head:{partId:'h01',prompt:'鸭子的头'},body:{partId:'b02',prompt:'恐龙的身体'},legs:{partId:'l01',prompt:'猴子的尾巴'}});
-  const semantic={name:'鸭龙猴尾兽',lore:'鸭嘴、恐龙躯干和猴尾组合而成。',parts:{
-    head:{title:'鸭嘴泡沫头',description:'扁平鸭嘴会吹出肥皂泡。',visualPrompt:'duck head',keywords:['鸭嘴','泡沫'],cost:null,reasons:[{keyword:'鸭嘴',quote:'鸭子的头',why:'宽扁鸭嘴能刺穿薄弱处'},{keyword:'泡沫',quote:'鸭子的头',why:'泡沫会吞没小型猎物'}]},
-    body:{title:'恐龙岩骨身',description:'厚重的恐龙岩骨躯干。',visualPrompt:'dinosaur body',keywords:['恐龙骨架'],cost:null,reasons:[{keyword:'恐龙骨架',quote:'恐龙的身体',why:'厚实骨骼形成坚固防护'}]},
-    legs:{title:'猴尾回旋足',description:'猴尾灵活摆动并辅助转向。',visualPrompt:'monkey tail',keywords:['猴尾','尾巴'],cost:null,reasons:[{keyword:'猴尾',quote:'猴子的尾巴',why:'猴的灵活性带来快速机动'},{keyword:'尾巴',quote:'猴子的尾巴',why:'尾巴摆动能改变方向'}]},
-  }};
-  const result=parseCreatureDrafts(semantic,inputs);
-  assert.equal(result.name,'鸭龙猴尾兽');assert.equal(result.head.name,'鸭嘴泡沫头');assert.equal(result.head.description,'扁平鸭嘴会吹出肥皂泡。');
-  assert.deepEqual(result.head.keywords,['穿刺','吞噬']);assert.deepEqual(result.body.keywords,['坚壳']);assert.deepEqual(result.legs.keywords,['迅捷','回旋']);
-  assert.equal(result.legs.reasons[1].why,'尾巴摆动能改变方向');assert.equal(result.legs.source,'deepseek');
-});
+  test('引用必须逐字出现在原话里', () => {
+    const bad = good();
+    bad.parts.body.reasons[0].quote = '健美';
+    expect(() => parseCreatureDraft(bad, origin)).toThrow(/连续片段/);
+  });
 
-test('无效的原文引用或跨槽技能拒绝整份回复',()=>{assert.throws(()=>parseCreatureDrafts({...reply,parts:{...reply.parts,head:{...reply.parts.head,reasons:[{keyword:'灼烧',quote:'不存在',why:'x'}]}}},inputs));assert.throws(()=>parseCreatureDrafts({...reply,parts:{...reply.parts,legs:{...reply.parts.legs,keywords:['坚壳']}}},inputs));});
+  test('模板句理由与重复前缀被就地修复，而不是原样展示', () => {
+    const bad = good();
+    bad.parts.body.reasons[0].why = '「健身」对应坚壳能力';
+    bad.parts.legs.reasons[0].why = '因为你写了「毛茸茸」，软软的短腿落地无声。';
+    const draft = parseCreatureDraft(bad, origin);
+    expect(draft.parts.body.trait.reasons[0].why).not.toMatch(/对应|能力|「/);
+    expect(draft.parts.legs.trait.reasons[0].why).toBe('软软的短腿落地无声');
+  });
 
-test('单句模式校验并拆成三件',()=>{const value=validateCreatureInputs({description:'熔岩蟹',partIds:['h01','b02','l01']});assert.equal(value.head.prompt,'熔岩蟹');assert.equal(value.description,'熔岩蟹');});
-test('所有代价词均可校验；夸张描述必须有原文支持的代价理由',()=>{
- for(const cost of COSTS){const priced={...reply,parts:{...reply.parts,head:{...reply.parts.head,cost,reasons:[...reply.parts.head.reasons,{keyword:cost,quote:'火焰',why:'这副力量也会付出代价'}]}}};assert.equal(parseCreatureDrafts(priced,inputs).head.cost,cost);}
- const bold=validateCreatureInputs({description:'无敌的神明',partIds:['h01','b01','l01']});
- const boldReply={...reply,parts:Object.fromEntries(Object.entries(reply.parts).map(([slot,part])=>[slot,{...part,reasons:part.reasons.map(reason=>({...reason,quote:'神明'}))}]))};
- assert.throws(()=>parseCreatureDrafts(boldReply,bold),/夸张描述必须附带代价/);
- const priced={...boldReply,parts:{...boldReply.parts,head:{...boldReply.parts.head,cost:'骄傲',reasons:[...boldReply.parts.head.reasons,{keyword:'骄傲',quote:'无敌',why:'神明嫌同一招不够有排面，偏不连用'}]}}};
- assert.equal(parseCreatureDrafts(priced,bold).head.cost,'骄傲');
- assert.throws(()=>parseCreatureDrafts({...boldReply,parts:{...boldReply.parts,head:{...boldReply.parts.head,cost:'骄傲'}}},bold),/代价「骄傲」缺少可核验理由/);
-});
+  test('跨槽技能被过滤，全部无效时拒绝', () => {
+    const bad = good();
+    bad.parts.legs.keywords = ['灼烧'];
+    bad.parts.legs.reasons[0].keyword = '灼烧';
+    expect(() => parseCreatureDraft(bad, origin)).toThrow();
+  });
 
-test('上游不可用时三件均有明确本地草案',async()=>{
-  let calls=0;
-  const http:typeof fetch=async()=>{calls++;throw Object.assign(new TypeError('fetch failed'),{cause:{code:'ECONNRESET',message:'private error'}});};
-  const result=await generateCreatureDrafts(inputs,{DEEPSEEK_API_KEY:'test-secret',DEEPSEEK_MODEL:'test-model'},http);
-  assert.equal(calls,2);
-  assert.equal(result.drafts.body.partId,'b02');
-  assert.equal(result.drafts.head.source,'local');
-  assert.ok(result.warning && !result.warning.includes('private error'));
-  assert.match(result.warning!,/网络连接失败/);
-  assert.match(result.drafts.head.fallbackReason!,/网络连接失败/);
+  test('夸张描述必须附带代价，且全身只能有一个代价', () => {
+    const boast = '无敌的神明螃蟹';
+    const value = good();
+    for (const slot of ['head', 'body', 'legs'] as const) value.parts[slot].reasons[0].quote = '螃蟹';
+    expect(() => parseCreatureDraft(value, boast)).toThrow(/代价/);
+    const withCost = structuredClone(value);
+    withCost.parts.head.cost = '骄傲';
+    withCost.parts.head.reasons.push({ keyword: '骄傲', quote: '无敌', why: '神明嫌同一招不够有排面，偏不连用' });
+    expect(parseCreatureDraft(withCost, boast).parts.head.trait.cost).toBe('骄傲');
+    const twoCosts = structuredClone(withCost);
+    twoCosts.parts.body.cost = '脆壳';
+    twoCosts.parts.body.reasons.push({ keyword: '脆壳', quote: '螃蟹', why: '壳薄得一碰就裂' });
+    expect(() => parseCreatureDraft(twoCosts, boast)).toThrow(/一个/);
+  });
+
+  test('没有密钥时不发请求，直接本地锻造', async () => {
+    let calls = 0;
+    const result = await generateCreatureDraft(origin, {}, async () => { calls++; return new Response(''); });
+    expect(calls).toBe(0);
+    expect(result.draft.source).toBe('local');
+    expect(result.note).toBeUndefined();
+  });
+
+  test('上游失败时回退本地，文案不泄露密钥与技术细节', async () => {
+    const result = await generateCreatureDraft(origin, env, async () => { throw new Error('secret-key leaked?'); });
+    expect(result.draft.source).toBe('local');
+    expect(result.note).not.toMatch(/secret|HTTP|DeepSeek/);
+  });
+
+  test('上游第一次不合格、第二次合格时使用第二次', async () => {
+    let calls = 0;
+    const result = await generateCreatureDraft(origin, env, async () => (++calls === 1 ? json({ name: 'x' }) : json(good())));
+    expect(calls).toBe(2);
+    expect(result.draft.source).toBe('deepseek');
+  });
+
+  test('本地锻造：三件都有引用自原话的理由，代价只出现一次', () => {
+    const draft = localCreatureDraft('慢吞吞但会喷火的巨大乌龟');
+    for (const slot of ['head', 'body', 'legs'] as const) {
+      for (const reason of draft.parts[slot].trait.reasons) expect(draft.origin.includes(reason.quote)).toBe(true);
+    }
+    const costs = (['head', 'body', 'legs'] as const).map(s => draft.parts[s].trait.cost).filter(Boolean);
+    expect(costs).toEqual(['迟缓']);
+    expect(draft.parts.head.trait.keywords).toContain('灼烧');
+  });
 });

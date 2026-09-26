@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<style>
+:root{--abyss:#07130F;--deep:#0D2621;--mint:#9FF0D8;--gold:#D4AE63;--cream:#F1E8D2;--muted:#8FAAA0;--lava:#EE9A45;--rose:#F08BA0;--sky:#8EC5FF;
+--serif:"Noto Serif CJK SC",serif;--sans:"Noto Sans CJK SC",sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:540px;height:960px;background:var(--abyss)}
+body{font-family:var(--sans);color:var(--cream);position:relative;overflow:hidden}
+.bg{position:absolute;inset:0;background:radial-gradient(420px 420px at 50% 300px,rgba(90,190,160,.28),transparent 70%),linear-gradient(180deg,#0F2E28,#07130F 70%)}
+.frame{position:absolute;inset:14px;border:1px solid rgba(212,174,99,.5)}
+.frame::before,.frame::after{content:"";position:absolute;width:18px;height:18px;border-color:var(--gold);border-style:solid}
+.frame::before{top:-4px;left:-4px;border-width:2px 0 0 2px}.frame::after{bottom:-4px;right:-4px;border-width:0 2px 2px 0}
+.top{position:absolute;top:34px;left:36px;right:36px;display:flex;justify-content:space-between;font-size:11px;letter-spacing:.28em;color:var(--gold)}
+.top b{font-family:var(--serif);font-weight:600;color:var(--cream);letter-spacing:.2em}
+.gen{position:absolute;top:58px;right:22px;font-family:var(--serif);font-weight:900;font-size:220px;line-height:1;color:rgba(159,240,216,.06)}
+.hero{position:absolute;top:70px;left:0;right:0;height:360px;display:flex;justify-content:center;align-items:flex-end}
+.hero img{height:330px;-webkit-mask:radial-gradient(closest-side,#000 72%,transparent 100%);mask:radial-gradient(closest-side,#000 72%,transparent 100%)}
+.ring{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:230px;height:30px;border-radius:50%;border:1.5px solid rgba(159,240,216,.55);box-shadow:0 0 24px rgba(159,240,216,.25)}
+.tick{position:absolute;left:36px;top:120px;font-size:10px;color:var(--muted);letter-spacing:.2em;writing-mode:vertical-rl}
+.name{position:absolute;top:446px;left:36px;right:36px}
+.name small{font-size:11px;letter-spacing:.3em;color:var(--mint)}
+.name h1{font-family:var(--serif);font-weight:900;font-size:46px;letter-spacing:.06em;margin-top:4px}
+.quote{position:absolute;top:542px;left:36px;right:36px;padding:10px 14px 9px;border-left:3px solid var(--gold);background:rgba(241,232,210,.06);font-family:var(--serif);font-size:15px;line-height:1.6}
+.quote span{display:block;font-family:var(--sans);font-size:10px;letter-spacing:.2em;color:var(--gold);margin-bottom:2px}
+.parts{position:absolute;top:620px;left:36px;right:36px}
+.part{display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:start;padding:10px 0;border-bottom:1px dashed rgba(159,240,216,.18)}
+.slot{width:34px;height:34px;border:1px solid rgba(212,174,99,.6);display:grid;place-items:center;font-family:var(--serif);font-size:15px;color:var(--gold);transform:rotate(45deg)}
+.slot i{font-style:normal;transform:rotate(-45deg)}
+.part b{font-family:var(--serif);font-size:17px;font-weight:700}
+.part p{font-size:11.5px;line-height:1.55;color:var(--muted);margin-top:3px}
+.part p em{font-style:normal;color:var(--cream)}
+.chip{font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;margin-top:2px;white-space:nowrap}
+.c1{color:#10201c;background:var(--sky)}.c2{color:#10201c;background:var(--mint)}.c3{color:#10201c;background:#C9B6FF}
+.stats{position:absolute;top:850px;left:36px;right:36px;display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.stat span{font-size:10px;color:var(--muted);letter-spacing:.15em}
+.stat b{display:block;font-family:var(--serif);font-size:20px;line-height:1.1}
+.bar{height:3px;background:rgba(159,240,216,.15);margin-top:4px}.bar i{display:block;height:100%;background:var(--mint)}
+.foot{position:absolute;bottom:28px;left:36px;right:36px;display:flex;justify-content:space-between;align-items:center;font-size:10.5px;color:var(--muted);letter-spacing:.12em}
+.line{display:flex;gap:6px;align-items:center}
+.line i{width:8px;height:8px;border-radius:50%;border:1px solid var(--gold)}.line i.on{background:var(--gold)}
+</style></head><body>
+<div class="bg"></div><div class="gen">03</div><div class="frame"></div>
+<div class="top"><b>SHELLFORGE 造物之海</b><span>标本 No.0003</span></div>
+<div class="tick">深海造物图鉴 ／ 第三代</div>
+<div class="hero"><div class="ring"></div><img src="creature.png" alt="此处为透明背景的造物渲染图"></div>
+
+<div class="name"><small>第 3 代传承者 · 累计胜场 1</small><h1>绒默牛来</h1></div>
+<div class="quote"><span>它诞生于这句话</span>「一只毛茸茸、很乖、从不还嘴的健身牛」</div>
+
+<div class="parts">
+  <div class="part"><div class="slot"><i>首</i></div><div><b>绒默首</b><p>因为你写了<em>「很乖、从不还嘴」</em>，低头的样子反而能震住对手</p></div><span class="chip c1">震慑</span></div>
+  <div class="part"><div class="slot"><i>躯</i></div><div><b>牛来之躯</b><p>因为你写了<em>「健身」</em>，紧绷的肌肉能硬抗冲击</p></div><span class="chip c2">坚壳</span></div>
+  <div class="part"><div class="slot"><i>足</i></div><div><b>绒默足</b><p>因为你写了<em>「毛茸茸」</em>，软软的短腿落地无声</p></div><span class="chip c3">潜行</span></div>
+</div>
+
+<div class="stats">
+  <div class="stat"><span>生命</span><b>60</b><div class="bar"><i style="width:75%"></i></div></div>
+  <div class="stat"><span>攻击</span><b>23</b><div class="bar"><i style="width:58%"></i></div></div>
+  <div class="stat"><span>防御</span><b>13</b><div class="bar"><i style="width:44%"></i></div></div>
+  <div class="stat"><span>速度</span><b>10</b><div class="bar"><i style="width:33%"></i></div></div>
+</div>
+<div class="foot"><div class="line"><i class="on"></i><i class="on"></i><i class="on"></i><span style="margin-left:6px">血脉三代</span></div><span>2026.09.25 · 来造一只你的</span></div>
+</body></html>

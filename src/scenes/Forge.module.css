@@ -1,0 +1,281 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+}
+.overlay > * {
+  pointer-events: auto;
+}
+.veil {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(70% 55% at 50% 50%, rgb(7 19 15 / 0.25), rgb(7 19 15 / 0.78));
+  pointer-events: none;
+  transition: opacity 900ms var(--ease-out);
+}
+
+/* 三枚贝壳槽 */
+.shells {
+  position: absolute;
+  left: 50%;
+  top: 58%;
+  display: flex;
+  gap: clamp(18px, 7vw, 64px);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.shellSlot {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+}
+.shellSlot svg {
+  width: clamp(64px, 17vw, 108px);
+  height: auto;
+  filter: drop-shadow(0 0 18px rgb(159 240 216 / 0.35));
+}
+.shellSlot[data-state='wobble'] svg {
+  animation: wobble 0.9s var(--ease-in-out) infinite;
+}
+.shellSlot[data-state='open'] svg {
+  animation: crack 700ms var(--ease-spring) forwards;
+}
+.shellSlot:nth-child(2) svg { animation-delay: 0.12s; }
+.shellSlot:nth-child(3) svg { animation-delay: 0.24s; }
+@keyframes wobble {
+  0%, 100% { transform: rotate(-4deg) translateY(0); }
+  50% { transform: rotate(4deg) translateY(-6px); }
+}
+@keyframes crack {
+  0% { transform: scale(1); opacity: 1; }
+  40% { transform: scale(1.18) rotate(-6deg); filter: drop-shadow(0 0 40px rgb(159 240 216 / 0.9)); }
+  100% { transform: scale(0.4) translateY(-40px); opacity: 0; }
+}
+.shellLabel {
+  font-family: var(--font-serif);
+  font-size: var(--fs-md);
+  color: var(--gold);
+  letter-spacing: 0.2em;
+}
+
+/* 飞起的字 */
+.char {
+  position: absolute;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: clamp(20px, 5vw, 30px);
+  color: var(--cream);
+  text-shadow: 0 0 14px rgb(159 240 216 / 0.8);
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+/* 揭示：原话 → 能力 */
+.reveal {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  top: max(72px, env(safe-area-inset-top) + 56px);
+  max-width: 880px;
+  margin: 0 auto;
+  display: grid;
+  gap: var(--s6);
+  text-align: center;
+}
+.revealQuote {
+  font-size: clamp(22px, 5.4vw, 36px);
+  line-height: 1.6;
+}
+.abilities {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--s3);
+}
+.ability {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  padding: var(--s3) var(--s2);
+  border-radius: var(--radius-md);
+  background: rgb(7 19 15 / 0.6);
+  border: 1px solid rgb(241 232 210 / 0.08);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.ability small {
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  color: var(--gold);
+}
+.ability b {
+  font-family: var(--font-serif);
+  font-size: var(--fs-lg);
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+.lines {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+.lines path {
+  fill: none;
+  stroke-width: 1.4;
+  stroke-dasharray: 600;
+  stroke-dashoffset: 600;
+  animation: draw 900ms var(--ease-out) forwards;
+  filter: drop-shadow(0 0 4px currentColor);
+}
+@keyframes draw {
+  to { stroke-dashoffset: 0; }
+}
+
+/* 完成：名字揭晓 */
+.done {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: grid;
+  gap: var(--s3);
+  padding: var(--s6) max(16px, env(safe-area-inset-left)) max(20px, env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, transparent, rgb(7 19 15 / 0.86) 26%, rgb(7 19 15 / 0.96));
+}
+@media (min-width: 900px) {
+  .done {
+    top: 0;
+    right: auto;
+    width: min(560px, 46vw);
+    align-content: center;
+    padding: var(--s12);
+    background: linear-gradient(90deg, rgb(7 19 15 / 0.92), rgb(7 19 15 / 0.6) 70%, transparent);
+  }
+}
+.born {
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  color: var(--gold);
+}
+.name {
+  font-size: clamp(40px, 11vw, 72px);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1.05;
+}
+.loreText {
+  color: var(--cream-dim);
+}
+.reasons {
+  display: grid;
+  gap: 8px;
+  margin: var(--s2) 0;
+}
+.reason {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  font-size: var(--fs-sm);
+  color: var(--cream-dim);
+  line-height: 1.6;
+}
+.glyph {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  margin-top: 1px;
+  border: 1px solid var(--gold);
+  transform: rotate(45deg);
+  font-family: var(--font-serif);
+  font-size: 12px;
+  color: var(--gold);
+}
+.glyph span {
+  transform: rotate(-45deg);
+}
+.note {
+  font-size: var(--fs-xs);
+  color: var(--muted);
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  margin-top: var(--s2);
+}
+.skip {
+  position: absolute;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+}
+
+@media (orientation: landscape) and (max-height: 520px) {
+  .done {
+    top: 0;
+    right: auto;
+    width: min(56vw, 520px);
+    align-content: center;
+    gap: var(--s2);
+    padding: 16px 20px;
+    background: linear-gradient(90deg, rgb(7 19 15 / 0.94), rgb(7 19 15 / 0.6) 75%, transparent);
+  }
+  .name {
+    font-size: 36px;
+  }
+  .loreText {
+    display: none;
+  }
+  .reveal {
+    top: 12px;
+    gap: var(--s3);
+  }
+  .revealQuote {
+    font-size: 20px;
+  }
+  .shells {
+    top: 74%;
+  }
+  .shellSlot svg {
+    width: 56px;
+  }
+}
+
+.hatchTip {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin: 14px 0 4px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(159, 240, 216, 0.1);
+  border: 1px solid rgba(159, 240, 216, 0.3);
+  text-align: left;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--cream);
+}
+.hatchTip p { margin: 0; }
+.hatchTip b { color: #9ff0d8; font-weight: 600; }
+.hatchDot {
+  flex: none;
+  width: 12px;
+  height: 14px;
+  margin-top: 5px;
+  border-radius: 50% 50% 46% 46% / 58% 58% 42% 42%;
+  background: #f6f1e4;
+  box-shadow: 0 0 0 3px rgba(159, 240, 216, 0.25);
+  animation: hatchWobble 1.4s ease-in-out infinite;
+}
+@keyframes hatchWobble {
+  0%, 100% { transform: rotate(-8deg); }
+  50% { transform: rotate(8deg); }
+}
+@media (prefers-reduced-motion: reduce) { .hatchDot { animation: none; } }

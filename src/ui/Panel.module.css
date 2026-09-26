@@ -1,0 +1,55 @@
+.panel {
+  position: relative;
+  padding: var(--s5);
+  border-radius: var(--radius-md);
+  background:
+    linear-gradient(180deg, rgb(21 64 58 / 0.35), rgb(13 38 33 / 0.1) 60%),
+    var(--panel);
+  border: 1px solid var(--hairline);
+  box-shadow: var(--shadow-panel);
+  backdrop-filter: blur(14px) saturate(1.1);
+  -webkit-backdrop-filter: blur(14px) saturate(1.1);
+}
+/* 金线框：与造物卡同一套语言 */
+.framed {
+  border-color: var(--gold-line);
+  border-radius: 4px;
+}
+.framed::before,
+.framed::after {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-color: var(--gold);
+  border-style: solid;
+  pointer-events: none;
+}
+.framed::before {
+  top: -4px;
+  left: -4px;
+  border-width: 2px 0 0 2px;
+}
+.framed::after {
+  right: -4px;
+  bottom: -4px;
+  border-width: 0 2px 2px 0;
+}
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s3);
+  margin-bottom: var(--s4);
+}
+.title {
+  white-space: nowrap;
+  font-size: var(--fs-lg);
+  font-weight: 700;
+}
+.eyebrow {
+  font-size: var(--fs-xs);
+  letter-spacing: var(--track-label);
+  color: var(--gold);
+}
