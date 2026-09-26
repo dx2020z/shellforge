@@ -1,9 +1,9 @@
 'use client';
-import dynamic from 'next/dynamic';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import type { RigHandle } from '@/three/CreatureRig';
 import type { StageCreature, StageMode } from '@/three/Stage';
+import { StageViewport } from '@/three/StageViewport';
 import { setReducedMotion } from '@/three/timescale';
 import { clearPoints } from '@/three/anchors';
 import { Workshop } from '@/scenes/Workshop';
@@ -29,8 +29,6 @@ import { localCreatureDraft } from '@/server/providers/creature';
 import { applyDuel, MARK_MAX, canForge, roster as rosterOf, ROSTER_MAX, selectCreature, retreatDuel, settleDuelLoss, settleDuelWin, startDuel, applyAction, burstQuote, fallbackEpitaph, forgeFromDraft, guardForDepth, retreat, settleDeath, settleWin, SPRING_LINES, startBattle, startExpedition, uid, applySpring, type ForgeDraft, type SpringChoice } from './logic';
 import * as sfx from '@/audio/synth';
 import styles from '@/scenes/scenes.module.css';
-
-const Stage = dynamic(() => import('@/three/Stage'), { ssr: false });
 
 type Scene = 'loading' | 'workshop' | 'forging' | 'omen' | 'map' | 'spring' | 'battle' | 'result' | 'duel' | 'duelResult';
 
@@ -462,8 +460,9 @@ export default function Game() {
 
   return (
     <>
-      <Stage
+      <StageViewport
         mode={mode}
+        creatureName={alive?.name}
         player={playerStage}
         guard={mode === 'battle' ? guardStage : null}
         playerRef={playerRig}

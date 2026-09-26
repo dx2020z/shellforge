@@ -1,0 +1,87 @@
+.root {
+  position: fixed;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 76% 53%, rgb(35 109 91 / 0.42), transparent 36%),
+    radial-gradient(ellipse at 58% 82%, rgb(15 62 53 / 0.54), transparent 42%),
+    linear-gradient(145deg, #10241f, #07130f 72%);
+}
+
+.creatures {
+  position: absolute;
+  right: clamp(20px, 5vw, 92px);
+  bottom: 5vh;
+  width: min(45vw, 590px);
+  height: min(68vh, 520px);
+  filter: drop-shadow(0 0 22px rgb(159 240 216 / 0.16));
+  opacity: 0.72;
+}
+
+.message {
+  position: absolute;
+  top: max(94px, 22vh);
+  right: clamp(28px, 11vw, 190px);
+  width: min(320px, 38vw);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  color: #f1e8d2;
+  text-shadow: 0 2px 12px rgb(0 0 0 / 0.45);
+}
+
+.kicker {
+  color: #d4ae63;
+  font-size: 11px;
+  letter-spacing: 0.24em;
+}
+
+.message strong {
+  font-family: var(--font-serif);
+  font-size: clamp(20px, 2.2vw, 30px);
+  font-weight: 800;
+}
+
+.message p {
+  margin: 0;
+  color: #c8d9d1;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.message button {
+  margin-top: 4px;
+  min-height: 38px;
+  padding: 0 16px;
+  border: 1px solid rgb(212 174 99 / 0.65);
+  border-radius: 999px;
+  color: #07130f;
+  background: #d4ae63;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.message button:hover {
+  background: #ebc879;
+}
+
+@media (max-width: 700px) {
+  .creatures {
+    right: 0;
+    bottom: 24vh;
+    width: 76vw;
+    height: 44vh;
+  }
+
+  .message {
+    top: 90px;
+    right: 20px;
+    width: min(280px, 62vw);
+  }
+}

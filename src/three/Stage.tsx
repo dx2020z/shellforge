@@ -9,6 +9,7 @@ import { SeaEnvironment } from './SeaEnvironment';
 import { projectAll } from './anchors';
 import { advance, gameTime } from './timescale';
 import { nextTier, renderPixelRatio, type QualityTier } from './quality';
+import { observeWebGLContext } from './context-health';
 
 export type StageMode = 'workshop' | 'forge' | 'battle';
 
@@ -37,6 +38,8 @@ export interface StageProps {
   shakeRef?: RefObject<number>;
   /** 画面被全屏界面盖住时暂停渲染，省电。 */
   paused?: boolean;
+  /** WebGL 初始化后若上下文丢失，通知外层切换到 2D 舞台。 */
+  onFailure?: (message: string) => void;
 }
 
 /** 按模式和屏幕比例取景：竖屏手机把镜头拉远拉高，保证两只造物都完整入镜。 */
@@ -106,6 +109,20 @@ function Director() {
   return null;
 }
 
+function ContextHealth({ onFailure }: { onFailure?: (message: string) => void }) {
+  const { gl } = useThree();
+  useEffect(() => {
+    return observeWebGLContext(
+      gl.domElement,
+      document,
+      () => document.visibilityState !== 'hidden',
+      () => gl.getContext().isContextLost(),
+      message => onFailure?.(message),
+    );
+  }, [gl, onFailure]);
+  return null;
+}
+
 function Placed({ mode, player, guard, playerRef, guardRef, playerDead, guardBroken }: Pick<StageProps, 'mode' | 'player' | 'guard' | 'playerRef' | 'guardRef' | 'playerDead' | 'guardBroken'>) {
   const { size } = useThree();
   const f = framing(mode, size.width / size.height);
@@ -150,6 +167,7 @@ export default function Stage(props: StageProps) {
     >
       <Director />
       <CameraRig mode={props.mode} shakeRef={props.shakeRef} />
+      <ContextHealth onFailure={props.onFailure} />
       <SeaEnvironment arena={props.mode === 'battle'} tide={props.tide ?? 0} enraged={Boolean(props.enraged)} danger={Boolean(props.danger)} school={props.school ?? 0} />
       <Placed {...props} />
     </Canvas>

@@ -4,6 +4,7 @@ const config: NextConfig = {
   poweredByHeader: false,
   devIndicators: false,
   reactStrictMode: true,
+  experimental: { cpus: 1 },
   async headers() {
     return [{
       source: '/fonts/:path*',
