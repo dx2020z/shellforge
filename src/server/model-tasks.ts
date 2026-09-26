@@ -95,7 +95,9 @@ export async function createTask(input: { id: string; slot: Slot; prompt: string
     const cachedId = await kv.get<string>(cacheKey);
     const cached = cachedId ? await load(kv, cachedId, now()) : null;
     if (cached) {
-      const reusable = ['succeeded', 'queued', 'processing', 'submitting'].includes(cached.status);
+      // 轮询中的任务仍然复用，避免重复付费；明确 retry 时，已完成或失败的
+      // 任务必须创建新任务，否则“换一副外形”会再次拿到同一模型。
+      const reusable = ['queued', 'processing', 'submitting'].includes(cached.status) || (!options.retry && cached.status === 'succeeded');
       if (reusable || !options.retry) return cached;
     }
     const existing = await load(kv, input.id, now());

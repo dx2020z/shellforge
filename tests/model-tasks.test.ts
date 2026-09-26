@@ -52,6 +52,17 @@ describe('Tripo 付费任务', () => {
     expect(calls).toBe(2);
   });
 
+  test('明确 retry 时不会复用已完成任务', async () => {
+    const kv = new MemoryKV();
+    let calls = 0;
+    const submit = async () => `provider-task-${++calls}`;
+    const first = await createTask({ id: randomUUID(), slot: 'head', prompt: 'same head' }, { kv, env, submit });
+    await kv.set(`task:${first.id}`, { ...first, status: 'succeeded', modelUrl: '/api/models/x' }, 1000);
+    const second = await createTask({ id: randomUUID(), slot: 'head', prompt: 'same head' }, { kv, env, retry: true, submit });
+    expect(second.id).not.toBe(first.id);
+    expect(calls).toBe(2);
+  });
+
   test('提交前按槽位包裹提示词并附带反向提示词', async () => {
     let submitted = '', negative = '';
     const task = await createTask({ id: randomUUID(), slot: 'body', prompt: 'mossy round belly' }, {

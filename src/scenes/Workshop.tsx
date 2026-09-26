@@ -35,12 +35,13 @@ export interface WorkshopProps {
   onDive: () => void;
   onNewCreature: () => void;
   onCard?: () => void;
+  onDelete?: () => void;
   /** 不满意 Tripo 生成的外形时，重新生成一次。 */
   onRegenerate?: () => void;
   serverReply: string | null;
 }
 
-export function Workshop({ creature, parts, nextGuard, roster = [], rosterMax = 5, onSelect, canForge = true, ai, riddles, heir, busy, onForge, onDive, onNewCreature, onCard, onRegenerate, serverReply }: WorkshopProps) {
+export function Workshop({ creature, parts, nextGuard, roster = [], rosterMax = 5, onSelect, canForge = true, ai, riddles, heir, busy, onForge, onDive, onNewCreature, onCard, onRegenerate, onDelete, serverReply }: WorkshopProps) {
   const [text, setText] = useState('');
   const [reply, setReply] = useState<string | null>(null);
   const [writing, setWriting] = useState(!creature);
@@ -113,6 +114,11 @@ export function Workshop({ creature, parts, nextGuard, roster = [], rosterMax = 
               {onRegenerate && (
                 <Button variant="ghost" onClick={onRegenerate}>
                   换一副外形
+                </Button>
+              )}
+              {onDelete && (
+                <Button variant="ghost" onClick={onDelete}>
+                  删除这只
                 </Button>
               )}
               {canForge && (
@@ -293,7 +299,7 @@ function CreatureStats({ creature, parts }: { creature: CreatureRecord; parts: P
   const hp = 14 + 2 * marks;
   const ink = Math.min(5, 3 + Math.max(0, creature.generation - 1));
   const inherited = parts.find(p => p.id === creature.inheritedPartId);
-  const growing = parts.filter(p => p.model.taskId && p.model.kind !== 'generated');
+  const growing = parts.filter(p => p.model.taskId);
   return (
     <div className={styles.stats}>
       <span>
@@ -317,7 +323,7 @@ function CreatureStats({ creature, parts }: { creature: CreatureRecord; parts: P
       )}
       {growing.length > 0 && (
         <p className={styles.growing}>
-          专属外形正在海底孵化：{parts.map(p => `${SLOT_NAMES[p.slot]}${p.model.kind === 'generated' ? '✓' : p.model.taskId ? '…' : '·'}`).join('  ')}（生成需要几分钟，好了会自动换上）
+          专属外形正在海底孵化：{parts.map(p => `${SLOT_NAMES[p.slot]}${p.model.taskId ? '…' : p.model.kind === 'generated' ? '✓' : '·'}`).join('  ')}（旧外形继续可用，生成完成后逐件换上）
         </p>
       )}
     </div>

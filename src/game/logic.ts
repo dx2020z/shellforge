@@ -273,6 +273,25 @@ export function canForge(save: GameSave): boolean {
   return roster(save).length < ROSTER_MAX;
 }
 
+/** 删除港口里的活着造物并释放名额。战斗/远征中的造物不能被删除。 */
+export function deleteCreature(save: GameSave, creatureId: string): GameSave {
+  if (save.expedition) throw new Error('远征途中不能删除造物');
+  const target = findCreature(save, creatureId);
+  if (!target || target.status !== 'alive') throw new Error('只能删除港口里的活着造物');
+  const next = structuredClone(save);
+  const removedPartIds = new Set(target.partIds);
+  next.creatures = next.creatures.filter(c => c.id !== creatureId);
+  const stillUsed = new Set(next.creatures.flatMap(c => c.partIds));
+  next.parts = next.parts.filter(part => {
+    if (!removedPartIds.has(part.id) || stillUsed.has(part.id)) return true;
+    return !(part.origin.kind === 'forged' && part.origin.creatureId === creatureId);
+  });
+  if (next.heir && !next.parts.some(part => part.id === next.heir!.partId)) next.heir = null;
+  next.activeCreatureId = roster(next)[0]?.id ?? null;
+  next.revision += 1;
+  return next;
+}
+
 export function selectCreature(save: GameSave, id: string): GameSave {
   const c = findCreature(save, id);
   if (!c || c.status !== 'alive') throw new Error('只能选择活着的造物');

@@ -97,7 +97,7 @@ describe('写字对决', () => {
   });
 });
 
-import { applyDuel, canForge, forgeFromDraft, retreatDuel, roster, ROSTER_MAX, selectCreature, settleDuelLoss, settleDuelWin, startDuel, type ForgeDraft } from '@/game/logic';
+import { applyDuel, canForge, deleteCreature, forgeFromDraft, retreatDuel, roster, ROSTER_MAX, selectCreature, settleDuelLoss, settleDuelWin, startDuel, type ForgeDraft } from '@/game/logic';
 import { localCreatureDraft } from '@/server/providers/creature';
 import { encodeSave, newGame, parseSave } from '@/domain/save';
 import { findCreature } from '@/domain/creature';
@@ -212,6 +212,23 @@ describe('守卫库与名册', () => {
     expect(canForge(s)).toBe(true);
     expect(s.activeCreatureId).toBe(roster(s)[0].id);
     expect(findCreature(s, first.id)!.status).toBe('fallen');
+  });
+
+  test('港口可以删除造物并释放名额，只清理它独有的自创部件', () => {
+    let s = forged(newGame(1), '一只会喷火的螃蟹');
+    const creature = roster(s)[0];
+    const partIds = [...creature.partIds];
+    const partCount = s.parts.length;
+    s = deleteCreature(s, creature.id);
+    expect(roster(s)).toHaveLength(0);
+    expect(s.activeCreatureId).toBeNull();
+    expect(s.parts.length).toBe(partCount - partIds.length);
+    expect(canForge(s)).toBe(true);
+  });
+
+  test('远征中不能删除造物', () => {
+    const s = startDuel(forged(newGame(1), '会喷火的螃蟹'));
+    expect(() => deleteCreature(s, s.activeCreatureId!)).toThrow('远征途中');
   });
 });
 

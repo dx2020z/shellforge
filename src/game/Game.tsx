@@ -26,7 +26,7 @@ import { reviewMistakes, type BattleState, type PlayerAction } from '@/domain/ba
 import type { CreatureRecord, GameSave } from '@/domain/types';
 import { SLOT_NAMES, type Slot } from '@/domain/keywords';
 import { localCreatureDraft } from '@/server/providers/creature';
-import { applyDuel, MARK_MAX, canForge, roster as rosterOf, ROSTER_MAX, selectCreature, retreatDuel, settleDuelLoss, settleDuelWin, startDuel, applyAction, burstQuote, fallbackEpitaph, forgeFromDraft, guardForDepth, retreat, settleDeath, settleWin, SPRING_LINES, startBattle, startExpedition, uid, applySpring, type ForgeDraft, type SpringChoice } from './logic';
+import { applyDuel, MARK_MAX, canForge, deleteCreature, roster as rosterOf, ROSTER_MAX, selectCreature, retreatDuel, settleDuelLoss, settleDuelWin, startDuel, applyAction, burstQuote, fallbackEpitaph, forgeFromDraft, guardForDepth, retreat, settleDeath, settleWin, SPRING_LINES, startBattle, startExpedition, uid, applySpring, type ForgeDraft, type SpringChoice } from './logic';
 import * as sfx from '@/audio/synth';
 import styles from '@/scenes/scenes.module.css';
 
@@ -141,7 +141,7 @@ export default function Game() {
 
   /* ---------------- Tripo：后台生成，完成后热替换外观 ---------------- */
   const startTripo = useCallback(
-    async (next: GameSave, creatureId: string) => {
+    async (next: GameSave, creatureId: string, retry = false) => {
       if (!status.tripo || offline) return next;
       const c = findCreature(next, creatureId);
       if (!c) return next;
@@ -149,8 +149,8 @@ export default function Game() {
       const failed: string[] = [];
       for (const part of creatureParts(next, c)) {
         if (part.origin.kind !== 'forged' || !part.visualPrompt) continue;
-        const res = await postJson<{ task: { id: string }; error?: string }>('/api/models/tasks', { id: uid(), slot: part.slot, prompt: part.visualPrompt });
-        if (res.ok && res.data?.task) current = updatePartModel(current, part.id, { ...part.model, kind: 'preset', taskId: res.data.task.id }); // 孵化中：先沿用现在的样子
+        const res = await postJson<{ task: { id: string }; error?: string }>('/api/models/tasks', { id: uid(), slot: part.slot, prompt: part.visualPrompt, retry });
+        if (res.ok && res.data?.task) current = updatePartModel(current, part.id, { ...part.model, taskId: res.data.task.id }); // 孵化中：保留现在的样子，完成后逐件替换
         else failed.push(`${part.name}${res.data?.error ? `（${res.data.error}）` : ''}`);
       }
       if (failed.length) setNotice(`专属外形没能开始生成：${failed.join('、')}。先用部件库的样子。`);
@@ -161,7 +161,7 @@ export default function Game() {
 
   useEffect(() => {
     if (!save || offline || !status.tripo) return;
-    const pending = save.parts.filter(p => p.model.taskId && p.model.kind !== 'generated');
+    const pending = save.parts.filter(p => p.model.taskId);
     if (!pending.length) return;
     const timer = setInterval(async () => {
       if (document.hidden) return;
@@ -173,7 +173,7 @@ export default function Game() {
           if (!current || !data.task) continue;
           setHatch(h => ({ ...h, [part.id]: Math.round(data.task!.progress ?? 0) }));
           if (data.task.status === 'succeeded' && data.task.modelUrl) {
-            commit(updatePartModel(current, part.id, { kind: 'generated', url: data.task.modelUrl, taskId: part.model.taskId, rotation: [0, 0, 0] }));
+            commit(updatePartModel(current, part.id, { kind: 'generated', url: data.task.modelUrl, rotation: [0, 0, 0] }));
             setNotice(`「${part.name}」的新外壳孵化好了。`);
           } else if (['failed', 'unknown'].includes(data.task.status)) {
             commit(updatePartModel(current, part.id, { ...part.model, taskId: undefined }));
@@ -521,12 +521,17 @@ export default function Game() {
           onDive={onDive}
           onNewCreature={() => {}}
           onCard={alive ? () => setCard(alive) : undefined}
+          onDelete={alive ? () => {
+            if (!window.confirm(`确定删除「${alive.name}」吗？删除后会释放一个名额，不能撤销。`)) return;
+            const current = saveRef.current;
+            if (current) commit(deleteCreature(current, alive.id));
+          } : undefined}
           onRegenerate={
-            alive && status.tripo && !offline && !parts.some(p => p.model.taskId && p.model.kind !== 'generated') && parts.some(p => p.origin.kind === 'forged' && p.visualPrompt)
+            alive && status.tripo && !offline && !parts.some(p => p.model.taskId) && parts.some(p => p.origin.kind === 'forged' && p.visualPrompt)
               ? async () => {
                   const current = saveRef.current!;
                   setNotice('好，让它重新孵化一副外形，几分钟后自动换上。');
-                  const next = await startTripo(current, alive.id);
+                  const next = await startTripo(current, alive.id, true);
                   if (next !== current) commit({ ...saveRef.current!, parts: next.parts });
                 }
               : undefined
@@ -551,7 +556,7 @@ export default function Game() {
           reduced={typeof window !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches}
           hatching={(() => {
             if (!save || offline || !status.tripo) return null;
-            const hatchingOf = (c: CreatureRecord) => creatureParts(save, c).some(p => p.model.taskId && p.model.kind !== 'generated');
+            const hatchingOf = (c: CreatureRecord) => creatureParts(save, c).some(p => p.model.taskId);
             const active = findCreature(save, save.activeCreatureId);
             if (!active || !hatchingOf(active)) return null;
             return { canForgeMore: canForge(save), others: rosterOf(save).filter(c => c.id !== active.id && hatchingOf(c)).length };
@@ -718,7 +723,7 @@ export default function Game() {
       <TideWipe id={wipe} />
       {save && !offline && status.tripo && (() => {
         const c = findCreature(save, save.expedition?.creatureId ?? save.activeCreatureId);
-        const isHatching = (x: CreatureRecord) => creatureParts(save, x).some(p => p.model.taskId && p.model.kind !== 'generated');
+        const isHatching = (x: CreatureRecord) => creatureParts(save, x).some(p => p.model.taskId);
         const others = rosterOf(save).filter(x => x.id !== c?.id && isHatching(x));
         const ps = c ? creatureParts(save, c) : [];
         const mine = c && isHatching(c);
@@ -730,7 +735,7 @@ export default function Game() {
               <b>{mine ? `${c!.name}的专属外形孵化中` : '专属外形孵化中'}</b>
               <small>
                 {mine
-                  ? ps.map(p => `${SLOT_NAMES[p.slot]} ${p.model.kind === 'generated' ? '✓' : p.model.taskId ? `${hatch[p.id] ?? 0}%` : '—'}`).join(' · ')
+                  ? ps.map(p => `${SLOT_NAMES[p.slot]} ${p.model.taskId ? `${hatch[p.id] ?? 0}%` : p.model.kind === 'generated' ? '✓' : '—'}`).join(' · ')
                   : others.map(x => x.name).join('、')}
                 {mine && others.length ? ` · 另有 ${others.length} 只` : ''}
               </small>
